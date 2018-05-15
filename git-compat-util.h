@@ -1018,6 +1018,21 @@ static inline int strtoul_ui(char const *s, int base, unsigned int *result)
 	return 0;
 }
 
+static inline int strtoul_timestamp(const char *s, int base, timestamp_t *result) {
+	timestamp_t ts;
+	char *p;
+
+	errno = 0;
+	/* negative values would be accepted by strtoul */
+	if (strchr(s, '-'))
+		return -1;
+	ts = parse_timestamp(s, &p, base);
+	if (errno || *p || p == s)
+		return -1;
+	*result = ts;
+	return 0;
+}
+
 static inline int strtol_i(char const *s, int base, int *result)
 {
 	long ul;

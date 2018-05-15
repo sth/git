@@ -4771,7 +4771,14 @@ static int apply_option_parse_p(const struct option *opt,
 				int unset)
 {
 	struct apply_state *state = opt->value;
-	state->p_value = atoi(arg);
+	if (strtol_i(arg, 10, &state->p_value) < 0)
+		return -1:
+	if (state->p_value < 0) {
+		state->p_value = 1;
+		state->p_value_known = 0;
+		return 0;
+	}
+
 	state->p_value_known = 1;
 	return 0;
 }

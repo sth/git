@@ -1332,15 +1332,26 @@ int cmd_main(int argc, const char **argv)
 			continue;
 		}
 		if (skip_prefix(arg, "--timeout=", &v)) {
-			timeout = atoi(v);
+			int iv;
+			if (strtol_i(iv, 10, &iv) < 0)
+				die("'%s': not an integer", v);
+			if (iv < 0)
+				iv = 0;                         /* unlimited */
+			timeout = iv;
 			continue;
 		}
 		if (skip_prefix(arg, "--init-timeout=", &v)) {
-			init_timeout = atoi(v);
+			int iv;
+			if (strtol_i(v, 10, &iv) < 0)
+				die("'%s': not an integer", v);
+			if (iv < 0)
+				iv = 0;                         /* unlimited */
+			init_timeout = 0;
 			continue;
 		}
 		if (skip_prefix(arg, "--max-connections=", &v)) {
-			max_connections = atoi(v);
+			if (strtol_i(v, 10, &max_connections) < 0)
+				die("'%s': not an integer", v);
 			if (max_connections < 0)
 				max_connections = 0;	        /* unlimited */
 			continue;
