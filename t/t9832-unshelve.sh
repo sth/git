@@ -1,6 +1,6 @@
 #!/bin/sh
 
-last_shelved_change() {
+last_shelved_change () {
 	p4 changes -s shelved -m1 | cut -d " " -f 2
 }
 
@@ -17,7 +17,7 @@ test_expect_success 'init depot' '
 		cd "$cli" &&
 		echo file1 >file1 &&
 		p4 add file1 &&
-		p4 submit -d "change 1"
+		p4 submit -d "change 1" &&
 		: >file_to_delete &&
 		p4 add file_to_delete &&
 		p4 submit -d "file to delete"
@@ -120,29 +120,14 @@ EOF
 	)
 '
 
-diff_adds_line() {
-	text="$1" &&
-	file="$2" &&
-	grep -q "^+$text" $file || (echo "expected \"text\" $text not found in $file" && exit 1)
-}
-
-diff_excludes_line() {
-	text="$1" &&
-	file="$2" &&
-	if grep -q "^+$text" $file; then
-		echo "unexpected text \"$text\" found in $file" &&
-		exit 1
-	fi
-}
-
 # Now try to unshelve it. git-p4 should refuse to do so.
 test_expect_success 'try to unshelve the change' '
 	test_when_finished cleanup_git &&
 	(
 		change=$(last_shelved_change) &&
 		cd "$git" &&
-		! git p4 unshelve $change >out.txt 2>&1 &&
-		grep -q "cannot unshelve" out.txt
+		test_must_fail git p4 unshelve $change 2>err.txt &&
+		grep -q "cannot unshelve" err.txt
 	)
 '
 
